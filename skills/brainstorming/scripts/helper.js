@@ -24,14 +24,15 @@
 
   function sessionKey() {
     try {
-      return window.sessionStorage && window.sessionStorage.getItem('brainstorm-session-key');
+      return window.sessionStorage?.getItem('brainstorm-session-key');
     } catch (e) {}
     return null;
   }
 
   function websocketUrl() {
     const key = sessionKey();
-    return 'ws://' + window.location.host + (key ? '/?key=' + encodeURIComponent(key) : '');
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return protocol + '//' + window.location.host + (key ? '/?key=' + encodeURIComponent(key) : '');
   }
 
   function reloadAfterRecovery() {
@@ -119,7 +120,7 @@
 
   function sendEvent(event) {
     event.timestamp = Date.now();
-    if (ws && ws.readyState === WebSocket.OPEN) {
+    if (ws?.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify(event));
     } else {
       eventQueue.push(event);
@@ -145,7 +146,7 @@
 
   window.toggleSelect = function(el) {
     const container = el.closest('.options') || el.closest('.cards');
-    const multi = container && container.dataset.multiselect !== undefined;
+    const multi = container?.dataset?.multiselect !== undefined;
     if (container && !multi) {
       container.querySelectorAll('.option, .card').forEach(o => o.classList.remove('selected'));
     }

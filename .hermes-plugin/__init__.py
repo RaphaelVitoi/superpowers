@@ -1,3 +1,5 @@
+# ruff: noqa: N999
+# pylint: disable=invalid-name,unused-argument
 import os
 import re
 from pathlib import Path
@@ -14,7 +16,7 @@ def _skills_dir() -> str:
     - flattened install (plugin files copied to the plugin dir root): `skills/`
       sits next to this module.
 
-    Raises loudly when neither matches — a bootstrap that silently skips is how
+    Raises loudly when neither matches  a bootstrap that silently skips is how
     a broken install masquerades as a working one.
     """
     here = os.path.dirname(os.path.realpath(__file__))
@@ -77,7 +79,7 @@ def register(ctx):
 
     # Register every stock skill with Hermes' native loader so skill_view can
     # load them on demand. Standard markdown; no conversion (plugin guide).
-    # register_skill requires a pathlib.Path — a str raises AttributeError and
+    # register_skill requires a pathlib.Path  a str raises AttributeError and
     # hermes silently disables the whole plugin (verified 2026-07-23).
     for name in sorted(os.listdir(skills_dir)):
         skill_md = os.path.join(skills_dir, name, "SKILL.md")
@@ -86,7 +88,7 @@ def register(ctx):
 
     # pre_llm_call returning {"context": ...} is the documented injection path
     # (on_session_start return values are ignored, and ctx.inject_message
-    # refuses from that hook — verified empirically 2026-07-23). The context is
+    # refuses from that hook  verified empirically 2026-07-23). The context is
     # appended to the first turn's user message.
     def pre_llm_call(
         session_id=None,

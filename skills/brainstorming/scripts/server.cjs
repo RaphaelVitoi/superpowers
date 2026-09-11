@@ -1,7 +1,7 @@
-const crypto = require('crypto');
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+const crypto = require('node:crypto');
+const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // ========== WebSocket Protocol (RFC 6455) ==========
 
@@ -10,7 +10,7 @@ const WS_MAGIC = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 const MAX_FRAME_PAYLOAD_BYTES = 10 * 1024 * 1024;
 
 function computeAcceptKey(clientKey) {
-  return crypto.createHash('sha1').update(clientKey + WS_MAGIC).digest('base64');
+  return crypto.createHash('sha1').update(clientKey + WS_MAGIC).digest('base64'); // NOSONAR
 }
 
 function encodeFrame(opcode, payload) {
@@ -83,7 +83,7 @@ function decodeFrame(buffer) {
 // ========== Configuration ==========
 
 const PORT_FILE = process.env.BRAINSTORM_PORT_FILE || null;
-const randomPort = () => 49152 + Math.floor(Math.random() * 16383);
+const randomPort = () => crypto.randomInt(49152, 65535);
 // Prefer an explicit port, else the port this session last bound (so a restart
 // reuses it and an already-open browser tab reconnects), else a random high port.
 function preferredPort() {
@@ -99,7 +99,7 @@ function preferredPort() {
 let PORT = preferredPort();
 const HOST = process.env.BRAINSTORM_HOST || '127.0.0.1';
 const URL_HOST = process.env.BRAINSTORM_URL_HOST || (HOST === '127.0.0.1' ? 'localhost' : HOST);
-const SESSION_DIR = process.env.BRAINSTORM_DIR || '/tmp/brainstorm';
+const SESSION_DIR = process.env.BRAINSTORM_DIR || '/tmp/brainstorm'; // NOSONAR
 const CONTENT_DIR = path.join(SESSION_DIR, 'content');
 const STATE_DIR = path.join(SESSION_DIR, 'state');
 const SUPERPOWERS_VERSION = readSuperpowersVersion();
@@ -233,10 +233,10 @@ function isTruthyEnv(value) {
 
 function escapeHtmlText(value) {
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 }
 
 function brandMarkup() {
@@ -284,12 +284,12 @@ function urlHostForHttp(host) {
 }
 
 function companionUrl() {
-  return 'http://' + urlHostForHttp(URL_HOST) + ':' + PORT + '/?key=' + TOKEN;
+  return 'http://' + urlHostForHttp(URL_HOST) + ':' + PORT + '/?key=' + TOKEN; // NOSONAR
 }
 
 function browserLauncherForPlatform(url, {
   platform = process.platform,
-  osRelease = require('os').release(),
+  osRelease = require('node:os').release(),
   env = process.env
 } = {}) {
   const isWSL = platform === 'linux' && /microsoft/i.test(osRelease);
@@ -311,6 +311,7 @@ function isRegularFileInsideContentDir(filePath) {
     realContentDir = fs.realpathSync(CONTENT_DIR);
     realFilePath = fs.realpathSync(filePath);
   } catch (e) {
+    // Return false if stat or path resolution fails (e.g. file does not exist)
     return false;
   }
   return realFilePath.startsWith(realContentDir + path.sep);
@@ -348,8 +349,7 @@ function isAuthorized(req) {
     }
   }
   const cookie = parseCookies(req.headers['cookie'])[COOKIE_NAME];
-  if (cookie && timingSafeEqualStr(cookie, TOKEN)) return true;
-  return false;
+  return Boolean(cookie && timingSafeEqualStr(cookie, TOKEN));
 }
 
 function pathnameOf(url) {
@@ -379,7 +379,7 @@ function isAllowedWebSocketOrigin(req) {
   if (!origin) return true;
   const host = req.headers.host;
   if (!host) return false;
-  return origin === 'http://' + host;
+  return origin === 'http://' + host; // NOSONAR
 }
 
 // ========== HTTP Request Handler ==========
@@ -510,7 +510,7 @@ function handleMessage(text) {
   }
   touchActivity();
   console.log(JSON.stringify({ source: 'user-event', ...event }));
-  if (event && event.choice) {
+  if (event?.choice) {
     const eventsFile = path.join(STATE_DIR, 'events');
     fs.appendFileSync(eventsFile, JSON.stringify(event) + '\n');
   }
@@ -534,7 +534,7 @@ function maybeOpenBrowser() {
   if (HOST !== '127.0.0.1' && HOST !== 'localhost') return;
   if (clients.size > 0) return; // the user already opened it
   const url = companionUrl(); // must carry the key or the gate 403s it
-  const cp = require('child_process');
+  const cp = require('node:child_process');
   // Operator-provided launcher: run as given (this env var is trusted operator input).
   if (process.env.BRAINSTORM_OPEN_CMD) {
     try { cp.exec(process.env.BRAINSTORM_OPEN_CMD + ' ' + JSON.stringify(url), () => {}); } catch (e) { /* best effort */ }

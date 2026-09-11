@@ -1,35 +1,53 @@
 #!/usr/bin/env python3
+# pylint: disable=invalid-name,broad-exception-caught,too-many-nested-blocks
 """
 Analyze token usage from Claude Code session transcripts.
 Breaks down usage by main session and individual subagents.
 """
 
+from __future__ import annotations
+
 import json
 import sys
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
+from typing import TypedDict
 
-def analyze_main_session(filepath):
-    """Analyze a session file and return token usage broken down by agent."""
-    main_usage = {
-        'input_tokens': 0,
-        'output_tokens': 0,
-        'cache_creation': 0,
-        'cache_read': 0,
-        'messages': 0
-    }
 
-    # Track usage per subagent
-    subagent_usage = defaultdict(lambda: {
+class UsageStats(TypedDict):
+    input_tokens: int
+    output_tokens: int
+    cache_creation: int
+    cache_read: int
+    messages: int
+    description: str | None
+
+
+def _create_subagent_usage() -> UsageStats:
+    return {
         'input_tokens': 0,
         'output_tokens': 0,
         'cache_creation': 0,
         'cache_read': 0,
         'messages': 0,
-        'description': None
-    })
+        'description': None,
+    }
 
-    with open(filepath, 'r') as f:
+
+def analyze_main_session(filepath: str | Path) -> tuple[dict[str, int], dict[str, UsageStats]]:
+    """Analyze a session file and return token usage broken down by agent."""
+    main_usage: dict[str, int] = {
+        'input_tokens': 0,
+        'output_tokens': 0,
+        'cache_creation': 0,
+        'cache_read': 0,
+        'messages': 0,
+    }
+
+    # Track usage per subagent
+    subagent_usage: defaultdict[str, UsageStats] = defaultdict(_create_subagent_usage)
+
+    with open(filepath, 'r', encoding='utf-8') as f:
         for line in f:
             try:
                 data = json.loads(line)

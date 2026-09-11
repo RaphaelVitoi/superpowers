@@ -1,5 +1,5 @@
-import fs from 'fs';
-import { pathToFileURL } from 'url';
+import fs from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const [, , pluginPath, scenario] = process.argv;
 

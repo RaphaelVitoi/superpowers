@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+// @ts-ignore
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 
 const EXTREMELY_IMPORTANT_MARKER = "<EXTREMELY_IMPORTANT>";
@@ -32,7 +33,7 @@ export default function superpowersPiExtension(pi: ExtensionAPI) {
 		injectBootstrap = false;
 	});
 
-	pi.on("context", async (event) => {
+	pi.on("context", async (event: { messages: unknown[] }) => {
 		if (!injectBootstrap) return;
 		if (event.messages.some(messageContainsBootstrap)) return;
 
@@ -81,7 +82,7 @@ ${piToolMapping()}
 }
 
 function stripFrontmatter(content: string): string {
-	const match = content.match(/^---\n[\s\S]*?\n---\n([\s\S]*)$/);
+	const match = /^---\n[\s\S]*?\n---\n([\s\S]*)$/.exec(content);
 	return (match ? match[1] : content).trim();
 }
 

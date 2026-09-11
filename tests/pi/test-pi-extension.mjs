@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import test from 'node:test';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,7 +24,7 @@ async function loadExtension() {
       handlers.get(event).push(handler);
     },
   };
-  const mod = await import(pathToFileURL(extensionPath).href + `?cachebust=${Date.now()}-${Math.random()}`);
+  const mod = await import(pathToFileURL(extensionPath).href + `?cachebust=${Date.now()}-${randomUUID()}`);
   mod.default(pi);
   return { handlers };
 }

@@ -1,3 +1,4 @@
+# pylint: disable=protected-access
 import importlib
 import importlib.util
 import os
@@ -115,6 +116,7 @@ class TestLayoutResolution:
             f"hermes_plugin_test_{plugdir.parent.name}_{plugdir.name}",
             plugdir / "__init__.py",
         )
+        assert spec is not None and spec.loader is not None
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         return mod

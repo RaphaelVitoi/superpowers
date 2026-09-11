@@ -1,8 +1,7 @@
+# pylint: disable=protected-access
 import importlib
 import os
 import sys
-
-import pytest
 
 sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname(__file__), "../../.hermes-plugin")
@@ -80,7 +79,7 @@ class TestBootstrapContent:
         )
         with open(ref, encoding="utf-8") as f:
             ref_text = f.read().strip()
-        # The mapping is included verbatim from the reference file — the
+        # The mapping is included verbatim from the reference file  the
         # single source, not a drift-prone inline copy.
         assert ref_text in content
         assert "read_file" in content

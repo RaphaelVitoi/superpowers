@@ -334,6 +334,7 @@ async function runTests() {
         ws.on('open', resolve);
         ws.on('error', reject);
       });
+      assert.strictEqual(ws.readyState, WebSocket.OPEN, 'WebSocket should be open');
       ws.close();
     });
 
@@ -417,9 +418,11 @@ async function runTests() {
       await sleep(100);
 
       // This should not throw even though ws1 is closed
-      fs.writeFileSync(path.join(CONTENT_DIR, 'after-close.html'), '<h2>After</h2>');
+      assert.doesNotThrow(() => {
+        fs.writeFileSync(path.join(CONTENT_DIR, 'after-close.html'), '<h2>After</h2>');
+      });
       await sleep(300);
-      // If we got here without error, the test passes
+      assert.strictEqual(ws1.readyState, WebSocket.CLOSED, 'Client should be closed');
     });
 
     await test('handles malformed JSON from client gracefully', async () => {
