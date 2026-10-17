@@ -5,6 +5,7 @@ import re
 from pathlib import Path
 
 BOOTSTRAP_MARKER = "superpowers:using-superpowers bootstrap for hermes"
+SKILL_FILENAME = "SKILL.md"
 
 
 def _skills_dir() -> str:
@@ -25,7 +26,7 @@ def _skills_dir() -> str:
         os.path.realpath(os.path.join(here, "skills")),
     )
     for cand in candidates:
-        if os.path.isfile(os.path.join(cand, "using-superpowers", "SKILL.md")):
+        if os.path.isfile(os.path.join(cand, "using-superpowers", SKILL_FILENAME)):
             return cand
     raise RuntimeError(
         "superpowers plugin: cannot find the skills/ tree "
@@ -41,7 +42,7 @@ def _strip_frontmatter(content: str) -> str:
 
 def _build_bootstrap(skills_dir: str) -> str:
     with open(
-        os.path.join(skills_dir, "using-superpowers", "SKILL.md"),
+        os.path.join(skills_dir, "using-superpowers", SKILL_FILENAME),
         encoding="utf-8",
     ) as f:
         body = _strip_frontmatter(f.read())
@@ -82,7 +83,7 @@ def register(ctx):
     # register_skill requires a pathlib.Path  a str raises AttributeError and
     # hermes silently disables the whole plugin (verified 2026-07-23).
     for name in sorted(os.listdir(skills_dir)):
-        skill_md = os.path.join(skills_dir, name, "SKILL.md")
+        skill_md = os.path.join(skills_dir, name, SKILL_FILENAME)
         if os.path.isfile(skill_md):
             ctx.register_skill(name, Path(skill_md))
 

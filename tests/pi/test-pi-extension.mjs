@@ -43,7 +43,7 @@ function textOf(message) {
     .join('\n');
 }
 
-test('package.json declares a pi package with skills and extension resources', async () => {
+await test('package.json declares a pi package with skills and extension resources', async () => {
   const pkg = await readPackageJson();
 
   assert.equal(pkg.name, 'superpowers');
@@ -52,7 +52,7 @@ test('package.json declares a pi package with skills and extension resources', a
   assert.deepEqual(pkg.pi.extensions, ['./.pi/extensions/superpowers.ts']);
 });
 
-test('extension registers lifecycle hooks without pre-compaction injection', async () => {
+await test('extension registers lifecycle hooks without pre-compaction injection', async () => {
   const { handlers } = await loadExtension();
 
   for (const event of ['resources_discover', 'session_start', 'session_compact', 'context', 'agent_end']) {
@@ -61,7 +61,7 @@ test('extension registers lifecycle hooks without pre-compaction injection', asy
   assert.equal((handlers.get('session_before_compact') ?? []).length, 0);
 });
 
-test('resources_discover contributes the bundled skills directory', async () => {
+await test('resources_discover contributes the bundled skills directory', async () => {
   const { handlers } = await loadExtension();
   const discover = firstHandler(handlers, 'resources_discover');
 
@@ -70,7 +70,7 @@ test('resources_discover contributes the bundled skills directory', async () => 
   assert.deepEqual(result.skillPaths, [resolve(repoRoot, 'skills')]);
 });
 
-test('startup context injects the bootstrap as one user message until agent_end', async () => {
+await test('startup context injects the bootstrap as one user message until agent_end', async () => {
   const { handlers } = await loadExtension();
   const sessionStart = firstHandler(handlers, 'session_start');
   const context = firstHandler(handlers, 'context');
@@ -101,7 +101,7 @@ test('startup context injects the bootstrap as one user message until agent_end'
   assert.equal(afterEnd, undefined, 'startup bootstrap should clear after agent_end');
 });
 
-test('session_compact injects bootstrap after compaction summaries, not before compaction', async () => {
+await test('session_compact injects bootstrap after compaction summaries, not before compaction', async () => {
   const { handlers } = await loadExtension();
   const sessionCompact = firstHandler(handlers, 'session_compact');
   const context = firstHandler(handlers, 'context');
@@ -119,7 +119,7 @@ test('session_compact injects bootstrap after compaction summaries, not before c
   assert.equal(result.messages[2], user);
 });
 
-test('pi tools reference documents pi-specific mappings', async () => {
+await test('pi tools reference documents pi-specific mappings', async () => {
   assert.equal(existsSync(piToolsPath), true, 'pi-tools.md should exist');
   const text = await readFile(piToolsPath, 'utf8');
 

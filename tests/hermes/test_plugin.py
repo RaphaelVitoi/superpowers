@@ -116,7 +116,8 @@ class TestLayoutResolution:
             f"hermes_plugin_test_{plugdir.parent.name}_{plugdir.name}",
             plugdir / "__init__.py",
         )
-        assert spec is not None and spec.loader is not None
+        assert spec is not None
+        assert spec.loader is not None
         mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(mod)
         return mod

@@ -17,23 +17,23 @@ let cachedBootstrap: string | null | undefined;
 export default function superpowersPiExtension(pi: ExtensionAPI) {
 	let injectBootstrap = true;
 
-	pi.on("resources_discover", async () => ({
+	pi.on("resources_discover", () => ({
 		skillPaths: [skillsDir],
 	}));
 
-	pi.on("session_start", async () => {
+	pi.on("session_start", () => {
 		injectBootstrap = true;
 	});
 
-	pi.on("session_compact", async () => {
+	pi.on("session_compact", () => {
 		injectBootstrap = true;
 	});
 
-	pi.on("agent_end", async () => {
+	pi.on("agent_end", () => {
 		injectBootstrap = false;
 	});
 
-	pi.on("context", async (event: { messages: unknown[] }) => {
+	pi.on("context", (event: { messages: unknown[] }) => {
 		if (!injectBootstrap) return;
 		if (event.messages.some(messageContainsBootstrap)) return;
 
